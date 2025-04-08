@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Genre Hits Bar Chart Race</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 1008px;
+            position: relative;
+        }
+        .bar {
+            fill-opacity: 0.9;
+            transition: fill-opacity 0.3s;
+        }
+        .bar:hover {
+            fill-opacity: 1;
+        }
+        .year-label {
+            font-size: 72px;
+            font-weight: 700;
+            fill: rgba(255, 255, 255, 0.15);
+            text-anchor: end;
+        }
+        .genre-label {
+            font-size: 14px;
+            font-weight: 500;
+            fill: #ffffff;
+            dominant-baseline: middle;
+        }
+        .value-label {
+            font-size: 14px;
+            font-weight: 500;
+            fill: #ffffff;
+            dominant-baseline: middle;
+            text-anchor: start;
+        }
+        .axis-label {
+            font-size: 14px;
+            font-weight: 500;
+            fill: #ffffff;
+        }
+        .axis {
+            font-size: 12px;
+            font-weight: 300;
+        }
+        .axis line {
+            stroke: rgba(255, 255, 255, 0.2);
+        }
+        .axis text {
+            fill: rgba(255, 255, 255, 0.6);
+        }
+        .controls {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 80px;
+        }
+        button:hover {
+            background-color: #1ed760;
+        }
+        button:disabled {
+            background-color: rgba(29, 185, 84, 0.5);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <button id="play-button">Play</button>
+            <button id="pause-button">Pause</button>
+            <button id="reset-button">Reset</button>
+        </div>
+        <div id="visualization"></div>
+    </div>
+    <script>
+        // Set the dimensions and margins of the graph
+        const margin = {top: 80, right: 20, bottom: 50, left: 160};
+        const width = 1008 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+        const barSize = 24; // Make bars a bit smaller to fit more
+        const n = 20; // Show more genres
+        const duration = 1500; // Transition duration
+        
+        // Create SVG container
+        const svg = d3.select("#visualization")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+        // Define gradient for bars
+        const defs = svg.append("defs");
+        
+        const gradient = defs.append("linearGradient")
+            .attr("id", "bar-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+            
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#1DB954")
+            .attr("stop-opacity", 1);
+            
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#1DB954")
+            .attr("stop-opacity", 0.7);
+
+        // Year display - middle right
+        const yearLabel = svg.append("text")
+            .attr("class", "year-label")
+            .attr("x", width)
+            .attr("y", height / 2)
+            .attr("dy", "0.32em");
+
+        // X axis
+        const x = d3.scaleLinear()
+            .range([0, width]);
+            
+        const xAxis = svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height})`);
+            
+        // Add X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + 35)
+            .text("Number of Hits");
+            
+        // Add Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -margin.left + 50)
+            .text("Genre");
+
+        // Color scale
+        const colorMap = {
+            "acoustic": "#1DB954",
+            "alt-rock": "#4daf4a",
+            "alternative": "#ff9d00",
+            "ambient": "#ff5252",
+            "anime": "#2196f3",
+            "blues": "#ff7043",
+            "british": "#9c27b0",
+            "children": "#8bc34a",
+            "chill": "#ffc107",
+            "club": "#f44336",
+            "comedy": "#03a9f4",
+            "country": "#8bc34a",
+            "dance": "#00bcd4",
+            "dancehall": "#4caf50",
+            "death-house": "#ffab91",
+            "edm": "#f44336",
+            "electro": "#ff9800",
+            "electronic": "#ff9800",
+            "emo": "#ce93d8",
+            "folk": "#673ab7",
+            "french": "#795548",
+            "funk": "#26a69a",
+            "garage": "#ffee58",
+            "german": "#9575cd",
+            "groove": "#4fc3f7",
+            "grunge": "#26a69a",
+            "hard-rock": "#4fc3f7",
+            "hip-hop": "#ff8a65",
+            "house": "#ffcc80",
+            "indian": "#aed581",
+            "indie": "#f8bbd0",
+            "indie-pop": "#e0e0e0",
+            "industrial": "#ba68c8",
+            "j-dance": "#f44336",
+            "j-pop": "#2196f3",
+            "k-pop": "#4caf50",
+            "latin": "#9c27b0",
+            "latino": "#ff9800",
+            "metal": "#795548",
+            "pagode": "#f44336",
+            "piano": "#2196f3",
+            "pop": "#4caf50",
+            "pop-film": "#ff9800",
+            "progressive-house": "#f44336",
+            "punk": "#9c27b0",
+            "punk-rock": "#4caf50",
+            "r-n-b": "#9c27b0",
+            "reggae": "#ff9800",
+            "reggaeton": "#f44336",
+            "rock": "#ff9800",
+            "sad": "#4caf50",
+            "salsa": "#9c27b0",
+            "show-tunes": "#f44336",
+            "singer-songwriter": "#ff9800",
+            "ska": "#9c27b0",
+            "songwriter": "#f44336",
+            "soul": "#4caf50",
+            "spanish": "#ff9800",
+            "swedish": "#9c27b0",
+            "synth-pop": "#9c27b0",
+            "techno": "#4caf50"
+        };
+
+        // Animation control
+        let timer;
+        let animationPaused = false; // Start with animation running
+
+        // Load the data
+        d3.csv("./final_df_cleaned.csv").then(function(data) {
+            console.log("Total raw records:", data.length);
+            
+            // Function to determine if a value is "True"
+            function isTrue(val) {
+                return val === "True" || val === true || val === "TRUE" || val === "true" || val === "1";
+            }
+            
+            // Process the data
+            const processedData = data.map(d => {
+                // Check if it's a hit on any platform
+                const isSpotifyHit = isTrue(d.Spotify_Hit);
+                const isYouTubeHit = isTrue(d.YouTube_Hit);
+                const isTikTokHit = isTrue(d.TikTok_Hit);
+                const isAppleMusicHit = isTrue(d["Apple Music_Hit"]);
+                const isSiriusXMHit = isTrue(d.SiriusXM_Hit);
+                const isDeezerHit = isTrue(d.Deezer_Hit);
+                const isAmazonHit = isTrue(d.Amazon_Hit);
+                const isPandoraHit = isTrue(d.Pandora_Hit);
+                const isShazamHit = isTrue(d.Shazam_Hit);
+                
+                const isHit = isSpotifyHit || isYouTubeHit || isTikTokHit || 
+                              isAppleMusicHit || isSiriusXMHit || isDeezerHit || 
+                              isAmazonHit || isPandoraHit || isShazamHit;
+                
+                let year;
+                try {
+                    const date = new Date(d["Release Date"]);
+                    if (!isNaN(date.getTime())) {
+                        year = date.getFullYear();
+                    } else if (d["Release Date"] && !isNaN(parseInt(d["Release Date"]))) {
+                        // Try to parse as a year directly
+                        year = parseInt(d["Release Date"]);
+                    }
+                } catch (e) {
+                    console.warn("Error parsing date:", d["Release Date"]);
+                }
+                
+                return {
+                    year: year,
+                    genre: d.track_genre,
+                    trackName: d.track_name,
+                    artists: d.artists,
+                    isHit: isHit,
+                    hitPlatforms: {
+                        spotify: isSpotifyHit,
+                        youtube: isYouTubeHit,
+                        tiktok: isTikTokHit,
+                        appleMusic: isAppleMusicHit,
+                        siriusXM: isSiriusXMHit,
+                        deezer: isDeezerHit,
+                        amazon: isAmazonHit,
+                        pandora: isPandoraHit,
+                        shazam: isShazamHit
+                    }
+                };
+            }).filter(d => {
+                // Validate the data
+                const validYear = d.year && !isNaN(d.year) && d.year > 1900 && d.year <= new Date().getFullYear();
+                const validGenre = d.genre && typeof d.genre === 'string' && d.genre.trim() !== '' && 
+                                  d.genre !== 'undefined' && d.genre !== 'NaN' && d.genre !== 'null';
+                return validYear && validGenre;
+            });
+            
+            console.log("Total processed records:", processedData.length);
+            console.log("Total hit records:", processedData.filter(d => d.isHit).length);
+            
+            // Count genres to see the distribution
+            const genreCounts = {};
+            processedData.forEach(d => {
+                if (d.isHit) {
+                    genreCounts[d.genre] = (genreCounts[d.genre] || 0) + 1;
+                }
+            });
+            
+            console.log("Genre distribution:", Object.entries(genreCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([genre, count]) => `${genre}: ${count}`)
+                .slice(0, 20)
+                .join(', '));
+            
+            // Get unique years and prepare keyframes (one per year)
+            const years = [...new Set(processedData.map(d => d.year))].sort((a, b) => a - b);
+            console.log("Years range:", years[0], "to", years[years.length-1], `(${years.length} years)`);
+            
+            // Function to calculate genre data for a specific year
+            function getYearData(year) {
+                // Filter data for current year
+                const yearData = processedData.filter(d => d.year === year);
+                const yearHits = yearData.filter(d => d.isHit);
+                console.log(`Year ${year}: ${yearData.length} total songs, ${yearHits.length} hits`);
+                
+                if (yearHits.length === 0) {
+                    console.warn(`No hits found for year ${year}`);
+                    return [];
+                }
+                
+                // Calculate hit counts by genre
+                const genres = {};
+                yearHits.forEach(d => {
+                    genres[d.genre] = (genres[d.genre] || 0) + 1;
+                });
+                
+                // Convert to array format and sort
+                const sortedGenres = Object.entries(genres)
+                    .map(([name, value]) => ({name, value}))
+                    .sort((a, b) => d3.descending(a.value, b.value))
+                    .slice(0, n);
+                
+                if (sortedGenres.length > 0) {
+                    console.log(`Year ${year} top genre: ${sortedGenres[0].name} with ${sortedGenres[0].value} hits`);
+                }
+                
+                return sortedGenres;
+            }
+            
+            // Create keyframes
+            const keyframes = years.map(year => {
+                const yearData = getYearData(year);
+                return {
+                    year,
+                    genres: yearData
+                };
+            });
+
+            // Set initial x-scale domain
+            let max = 0;
+            keyframes.forEach(kf => {
+                if (kf.genres.length > 0) {
+                    const frameMax = kf.genres[0].value;
+                    if (frameMax > max) max = frameMax;
+                }
+            });
+            x.domain([0, max * 1.1 || 10]); // Fallback to 10 if max is 0
+            
+            // Skip years with no data
+            const validKeyframes = keyframes.filter(kf => kf.genres.length > 0);
+            
+            if (validKeyframes.length === 0) {
+                document.getElementById("visualization").innerHTML = 
+                    `<p style="color: red">No valid data found for visualization. Please check your CSV file.</p>`;
+                return;
+            }
+            
+            console.log(`${validKeyframes.length} valid keyframes out of ${keyframes.length} years`);
+            
+            // Initial X axis
+            xAxis.call(d3.axisBottom(x)
+                .ticks(5)
+                .tickSize(-height)
+                .tickFormat(d => d)
+            );
+
+            // Display first year
+            updateBars(validKeyframes[0]);
+            yearLabel.text(validKeyframes[0].year);
+
+            // Control buttons event listeners
+            document.getElementById("play-button").addEventListener("click", function() {
+                if (animationPaused) {
+                    animationPaused = false;
+                    this.disabled = true;
+                    document.getElementById("pause-button").disabled = false;
+                    animate();
+                }
+            });
+            document.getElementById("play-button").disabled = true; // Disable play button initially since autoplay is on
+
+            document.getElementById("pause-button").addEventListener("click", function() {
+                animationPaused = true;
+                clearTimeout(timer);
+                this.disabled = true;
+                document.getElementById("play-button").disabled = false;
+            });
+
+            document.getElementById("reset-button").addEventListener("click", function() {
+                animationPaused = true;
+                clearTimeout(timer);
+                document.getElementById("play-button").disabled = false;
+                document.getElementById("pause-button").disabled = true;
+                currentKeyframeIndex = 0;
+                updateBars(validKeyframes[0]);
+                yearLabel.text(validKeyframes[0].year);
+            });
+
+            // Animation function
+            let currentKeyframeIndex = 0;
+            
+            function animate() {
+                if (animationPaused) return;
+                
+                currentKeyframeIndex = (currentKeyframeIndex + 1) % validKeyframes.length;
+                const keyframe = validKeyframes[currentKeyframeIndex];
+                
+                updateBars(keyframe);
+                yearLabel.text(keyframe.year);
+                
+                timer = setTimeout(() => {
+                    animate(); // Always continue to next frame for continuous looping
+                }, duration);
+            }
+
+            // Start animation automatically
+            animate();
+
+            // Function to update bars for a keyframe
+            function updateBars(keyframe) {
+                // Get data for the current year
+                const data = keyframe.genres;
+                
+                // Compute ranks
+                data.forEach((d, i) => {
+                    d.rank = i;
+                });
+                
+                // Compute y position for each bar
+                const y = d => d.rank * barSize;
+                
+                // Join data with bars
+                const bars = svg.selectAll("g.bar")
+                    .data(data, d => d.name);
+                
+                // Remove exiting bars
+                bars.exit()
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", d => `translate(0,${height + 100})`)
+                    .remove();
+                
+                // Create new bars
+                const barsEnter = bars.enter().append("g")
+                    .attr("class", "bar")
+                    .attr("transform", d => `translate(0,${y(d)})`)
+                    .attr("opacity", 0);
+
+                // Add rectangles
+                barsEnter.append("rect")
+                    .attr("height", barSize - 5)
+                    .attr("width", 0)
+                    .attr("rx", 3)
+                    .attr("fill", d => colorMap[d.name] || "url(#bar-gradient)");
+                
+                // Add genre labels
+                barsEnter.append("text")
+                    .attr("class", "genre-label")
+                    .attr("x", -8)
+                    .attr("y", barSize / 2)
+                    .attr("text-anchor", "end")
+                    .text(d => d.name);
+                
+                // Add value labels
+                barsEnter.append("text")
+                    .attr("class", "value-label")
+                    .attr("x", d => x(d.value) + 8)
+                    .attr("y", barSize / 2)
+                    .text(d => d.value);
+                
+                // Update all bars
+                const allBars = barsEnter.merge(bars);
+                
+                // Transition entering bars
+                barsEnter.transition()
+                    .duration(duration)
+                    .attr("opacity", 1);
+                
+                // Transition all bars to new positions and values
+                allBars.transition()
+                    .duration(duration)
+                    .attr("transform", d => `translate(0,${y(d)})`)
+                    .attr("opacity", 1);
+                
+                // Update rectangles
+                allBars.select("rect")
+                    .transition()
+                    .duration(duration)
+                    .attr("width", d => x(d.value));
+                
+                // Update value labels
+                allBars.select(".value-label")
+                    .transition()
+                    .duration(duration)
+                    .attr("x", d => x(d.value) + 8)
+                    .text(d => d.value);
+            }
+        }).catch(function(error) {
+            console.error("Error loading data:", error);
+            document.getElementById("visualization").innerHTML = 
+                `<p style="color: red">Error loading data: ${error.message}. Make sure final_df_cleaned.csv is in the same directory.</p>`;
+        });
+    </script>
+</body>
+</html> 
