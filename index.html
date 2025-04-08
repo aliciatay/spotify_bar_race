@@ -63,6 +63,7 @@
             position: absolute;
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 10px;
             top: 15px;
             left: 50%;
@@ -86,6 +87,22 @@
             background-color: rgba(29, 185, 84, 0.5);
             cursor: not-allowed;
         }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            color: #b3b3b3;
+            font-size: 12px;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .speed-control label {
+            margin-right: 5px;
+        }
+        .speed-control input[type="range"] {
+            width: 80px;
+        }
     </style>
 </head>
 <body>
@@ -94,6 +111,11 @@
             <button id="play-button">Play</button>
             <button id="pause-button">Pause</button>
             <button id="reset-button">Reset</button>
+            <div class="speed-control">
+                <label>Speed:</label>
+                <input type="range" id="speed-slider" min="250" max="2000" value="750" step="250">
+                <span id="speed-value">1.0x</span>
+            </div>
         </div>
         <div id="visualization"></div>
     </div>
@@ -104,7 +126,7 @@
         const height = 600 - margin.top - margin.bottom;
         const barSize = 24; // Make bars a bit smaller to fit more
         const n = 20; // Show more genres
-        const duration = 1500; // Transition duration
+        let duration = 750; // Default transition duration (faster than before) - made variable with let
         
         // Create SVG container
         const svg = d3.select("#visualization")
@@ -520,6 +542,31 @@
                     .attr("x", d => x(d.value) + 8)
                     .text(d => d.value);
             }
+
+            // Speed slider
+            const speedSlider = document.getElementById("speed-slider");
+            const speedValue = document.getElementById("speed-value");
+            const speedLabels = {
+                "250": "3.0x",
+                "500": "1.5x",
+                "750": "1.0x",
+                "1000": "0.75x",
+                "1250": "0.6x",
+                "1500": "0.5x",
+                "1750": "0.43x",
+                "2000": "0.38x"
+            };
+            
+            speedSlider.addEventListener("input", function() {
+                const newDuration = parseInt(this.value);
+                // Update the duration variable
+                speedValue.textContent = speedLabels[this.value] || (750/newDuration).toFixed(2) + "x";
+            });
+            
+            speedSlider.addEventListener("change", function() {
+                // Only update the actual duration when slider change is complete
+                duration = parseInt(this.value);
+            });
         }).catch(function(error) {
             console.error("Error loading data:", error);
             document.getElementById("visualization").innerHTML = 
