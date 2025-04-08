@@ -16,7 +16,7 @@
         }
         .container {
             width: 1008px;
-            height: 542px;
+            height: 535px;
             position: relative;
             overflow: hidden;
         }
@@ -77,11 +77,12 @@
             background-color: #1DB954;
             color: white;
             border: none;
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 16px;
             cursor: pointer;
             font-weight: bold;
-            min-width: 70px;
+            min-width: 60px;
+            font-size: 11px;
         }
         button:hover {
             background-color: #1ed760;
@@ -93,18 +94,19 @@
         .speed-control {
             display: flex;
             align-items: center;
-            margin-left: 10px;
+            margin-left: 8px;
             color: #b3b3b3;
-            font-size: 12px;
+            font-size: 10px;
             background-color: rgba(40, 40, 40, 0.7);
-            padding: 5px 10px;
-            border-radius: 20px;
+            padding: 3px 8px;
+            border-radius: 16px;
         }
         .speed-control label {
-            margin-right: 5px;
+            margin-right: 4px;
         }
         .speed-control input[type="range"] {
-            width: 80px;
+            width: 60px;
+            height: 4px;
         }
     </style>
 </head>
@@ -126,16 +128,16 @@
         // Set the dimensions and margins of the graph
         const margin = {top: 60, right: 20, bottom: 40, left: 160};
         const width = 1008 - margin.left - margin.right;
-        const height = 542 - margin.top - margin.bottom;
+        const height = 535 - margin.top - margin.bottom;
         const barSize = 24; // Make bars a bit smaller to fit more
-        const n = 20; // Show more genres
+        const n = 18; // Show top 18 genres instead of 20
         let duration = 750; // Default transition duration (faster than before) - made variable with let
         
         // Create SVG container
         const svg = d3.select("#visualization")
             .append("svg")
             .attr("width", 1008)
-            .attr("height", 542) // Use new height
+            .attr("height", 535) // Use new height
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
             
