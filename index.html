@@ -35,25 +35,25 @@
             text-anchor: end;
         }
         .genre-label {
-            font-size: 14px;
+            font-size: 9px;
             font-weight: 500;
             fill: #ffffff;
             dominant-baseline: middle;
         }
         .value-label {
-            font-size: 14px;
+            font-size: 9px;
             font-weight: 500;
             fill: #ffffff;
             dominant-baseline: middle;
             text-anchor: start;
         }
         .axis-label {
-            font-size: 12px;
+            font-size: 9px;
             font-weight: 500;
             fill: #ffffff;
         }
         .axis {
-            font-size: 12px;
+            font-size: 9px;
             font-weight: 300;
         }
         .axis line {
@@ -522,6 +522,19 @@
             function updateBars(keyframe) {
                 // Get data for the current year
                 const data = keyframe.genres;
+                
+                // Update x-axis scale based on current data
+                const maxValue = d3.max(data, d => d.value);
+                x.domain([0, maxValue * 1.2]); // Add 20% padding to the right
+                
+                // Update X axis with new domain
+                xAxis.transition()
+                    .duration(duration)
+                    .call(d3.axisBottom(x)
+                        .ticks(5)
+                        .tickSize(-height)
+                        .tickFormat(d => d)
+                    );
                 
                 // Compute ranks
                 data.forEach((d, i) => {
