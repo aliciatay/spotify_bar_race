@@ -16,7 +16,7 @@
         }
         .container {
             width: 1008px;
-            height: 535px;
+            height: 500px;
             position: relative;
             overflow: hidden;
         }
@@ -29,7 +29,7 @@
             filter: brightness(1.2);
         }
         .year-label {
-            font-size: 65px;
+            font-size: 60px;
             font-weight: 700;
             fill: rgba(255, 255, 255, 0.12);
             text-anchor: end;
@@ -126,18 +126,18 @@
     </div>
     <script>
         // Set the dimensions and margins of the graph
-        const margin = {top: 60, right: 20, bottom: 40, left: 160};
+        const margin = {top: 50, right: 20, bottom: 40, left: 160};
         const width = 1008 - margin.left - margin.right;
-        const height = 535 - margin.top - margin.bottom;
-        const barSize = 24; // Make bars a bit smaller to fit more
-        const n = 18; // Show top 18 genres instead of 20
+        const height = 500 - margin.top - margin.bottom;
+        const barSize = 23; // Make bars slightly smaller to fit in reduced height
+        const n = 17; // Show top 17 genres to fit in reduced height
         let duration = 750; // Default transition duration (faster than before) - made variable with let
         
         // Create SVG container
         const svg = d3.select("#visualization")
             .append("svg")
             .attr("width", 1008)
-            .attr("height", 535) // Use new height
+            .attr("height", 500) // Use new height
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
             
