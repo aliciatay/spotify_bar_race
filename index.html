@@ -8,7 +8,7 @@
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #121212;
+            background-color: #000000;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -16,7 +16,7 @@
         }
         .container {
             width: 1008px;
-            height: 599px;
+            height: 542px;
             position: relative;
             overflow: hidden;
         }
@@ -26,11 +26,12 @@
         }
         .bar:hover {
             fill-opacity: 1;
+            filter: brightness(1.2);
         }
         .year-label {
             font-size: 65px;
             font-weight: 700;
-            fill: rgba(255, 255, 255, 0.15);
+            fill: rgba(255, 255, 255, 0.12);
             text-anchor: end;
         }
         .genre-label {
@@ -95,7 +96,7 @@
             margin-left: 10px;
             color: #b3b3b3;
             font-size: 12px;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(40, 40, 40, 0.7);
             padding: 5px 10px;
             border-radius: 20px;
         }
@@ -123,9 +124,9 @@
     </div>
     <script>
         // Set the dimensions and margins of the graph
-        const margin = {top: 60, right: 20, bottom: 50, left: 160};
+        const margin = {top: 60, right: 20, bottom: 40, left: 160};
         const width = 1008 - margin.left - margin.right;
-        const height = 599 - margin.top - margin.bottom;
+        const height = 542 - margin.top - margin.bottom;
         const barSize = 24; // Make bars a bit smaller to fit more
         const n = 20; // Show more genres
         let duration = 750; // Default transition duration (faster than before) - made variable with let
@@ -134,7 +135,7 @@
         const svg = d3.select("#visualization")
             .append("svg")
             .attr("width", 1008)
-            .attr("height", 599 - margin.top) // Adjust height to account for controls at the top
+            .attr("height", 542) // Use new height
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
             
@@ -150,12 +151,64 @@
             
         gradient.append("stop")
             .attr("offset", "0%")
-            .attr("stop-color", "#1DB954")
+            .attr("stop-color", "#1DB954") // Spotify green
             .attr("stop-opacity", 1);
             
         gradient.append("stop")
             .attr("offset", "100%")
-            .attr("stop-color", "#1DB954")
+            .attr("stop-color", "#19D764") // Lighter green
+            .attr("stop-opacity", 0.8);
+            
+        // Add additional gradients for common genre colors
+        const pinkGradient = defs.append("linearGradient")
+            .attr("id", "pink-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+            
+        pinkGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#F66EBE") // Pink
+            .attr("stop-opacity", 1);
+            
+        pinkGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#F66EBE")
+            .attr("stop-opacity", 0.7);
+            
+        const yellowGradient = defs.append("linearGradient")
+            .attr("id", "yellow-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+            
+        yellowGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#F1FF48") // Yellow
+            .attr("stop-opacity", 1);
+            
+        yellowGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#F1FF48")
+            .attr("stop-opacity", 0.7);
+            
+        const purpleGradient = defs.append("linearGradient")
+            .attr("id", "purple-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "100%")
+            .attr("y2", "0%");
+            
+        purpleGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#6A1AB4") // Purple
+            .attr("stop-opacity", 1);
+            
+        purpleGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#6A1AB4")
             .attr("stop-opacity", 0.7);
 
         // Year display - middle right
@@ -178,7 +231,7 @@
             .attr("class", "axis-label")
             .attr("text-anchor", "middle")
             .attr("x", width / 2)
-            .attr("y", height + 35)
+            .attr("y", height + 30)
             .text("Number of Hits");
             
         // Add Y axis label
@@ -190,69 +243,69 @@
             .attr("y", -margin.left + 40)
             .text("Genre");
 
-        // Color scale
+        // Color scale - using Spotify branding colors
         const colorMap = {
-            "acoustic": "#1DB954",
-            "alt-rock": "#4daf4a",
-            "alternative": "#ff9d00",
-            "ambient": "#ff5252",
-            "anime": "#2196f3",
-            "blues": "#ff7043",
-            "british": "#9c27b0",
-            "children": "#8bc34a",
-            "chill": "#ffc107",
-            "club": "#f44336",
-            "comedy": "#03a9f4",
-            "country": "#8bc34a",
-            "dance": "#00bcd4",
-            "dancehall": "#4caf50",
-            "death-house": "#ffab91",
-            "edm": "#f44336",
-            "electro": "#ff9800",
-            "electronic": "#ff9800",
-            "emo": "#ce93d8",
-            "folk": "#673ab7",
-            "french": "#795548",
-            "funk": "#26a69a",
-            "garage": "#ffee58",
-            "german": "#9575cd",
-            "groove": "#4fc3f7",
-            "grunge": "#26a69a",
-            "hard-rock": "#4fc3f7",
-            "hip-hop": "#ff8a65",
-            "house": "#ffcc80",
-            "indian": "#aed581",
-            "indie": "#f8bbd0",
-            "indie-pop": "#e0e0e0",
-            "industrial": "#ba68c8",
-            "j-dance": "#f44336",
-            "j-pop": "#2196f3",
-            "k-pop": "#4caf50",
-            "latin": "#9c27b0",
-            "latino": "#ff9800",
-            "metal": "#795548",
-            "pagode": "#f44336",
-            "piano": "#2196f3",
-            "pop": "#4caf50",
-            "pop-film": "#ff9800",
-            "progressive-house": "#f44336",
-            "punk": "#9c27b0",
-            "punk-rock": "#4caf50",
-            "r-n-b": "#9c27b0",
-            "reggae": "#ff9800",
-            "reggaeton": "#f44336",
-            "rock": "#ff9800",
-            "sad": "#4caf50",
-            "salsa": "#9c27b0",
-            "show-tunes": "#f44336",
-            "singer-songwriter": "#ff9800",
-            "ska": "#9c27b0",
-            "songwriter": "#f44336",
-            "soul": "#4caf50",
-            "spanish": "#ff9800",
-            "swedish": "#9c27b0",
-            "synth-pop": "#9c27b0",
-            "techno": "#4caf50"
+            "acoustic": "#1DB954", // Spotify green
+            "alt-rock": "#19D764", // Light green
+            "alternative": "#F66EBE", // Pink
+            "ambient": "#6A1AB4", // Purple
+            "anime": "#2196f3", // Blue
+            "blues": "#F1A277", // Light coral
+            "british": "#9c27b0", // Purple
+            "children": "#8bc34a", // Light green
+            "chill": "#F1FF48", // Yellow
+            "club": "#F66EBE", // Pink
+            "comedy": "#03a9f4", // Light blue
+            "country": "#F1A277", // Light coral
+            "dance": "#1DB954", // Spotify green
+            "dancehall": "#4caf50", // Green
+            "death-house": "#ffab91", // Coral
+            "edm": "#F66EBE", // Pink
+            "electro": "#19D764", // Light green
+            "electronic": "#F1FF48", // Yellow
+            "emo": "#ce93d8", // Light purple
+            "folk": "#F1A277", // Light coral
+            "french": "#F1A277", // Light coral
+            "funk": "#19D764", // Light green
+            "garage": "#F1FF48", // Yellow
+            "german": "#9575cd", // Purple
+            "groove": "#19D764", // Light green
+            "grunge": "#141413", // Dark (almost black)
+            "hard-rock": "#141413", // Dark
+            "hip-hop": "#F66EBE", // Pink
+            "house": "#F1FF48", // Yellow
+            "indian": "#aed581", // Light green
+            "indie": "#F66EBE", // Pink
+            "indie-pop": "#F66EBE", // Pink
+            "industrial": "#141413", // Dark
+            "j-dance": "#F66EBE", // Pink
+            "j-pop": "#F66EBE", // Pink
+            "k-pop": "#F66EBE", // Pink
+            "latin": "#F1A277", // Light coral
+            "latino": "#F1A277", // Light coral
+            "metal": "#141413", // Dark
+            "pagode": "#F1A277", // Light coral
+            "piano": "#6A1AB4", // Purple
+            "pop": "#F66EBE", // Pink
+            "pop-film": "#F1FF48", // Yellow
+            "progressive-house": "#19D764", // Light green
+            "punk": "#141413", // Dark
+            "punk-rock": "#141413", // Dark
+            "r-n-b": "#F66EBE", // Pink
+            "reggae": "#F1A277", // Light coral
+            "reggaeton": "#F1A277", // Light coral
+            "rock": "#141413", // Dark
+            "sad": "#6A1AB4", // Purple
+            "salsa": "#F1A277", // Light coral
+            "show-tunes": "#F1FF48", // Yellow
+            "singer-songwriter": "#F1A277", // Light coral
+            "ska": "#19D764", // Light green
+            "songwriter": "#F1A277", // Light coral
+            "soul": "#F1A277", // Light coral
+            "spanish": "#F1A277", // Light coral
+            "swedish": "#F1FF48", // Yellow
+            "synth-pop": "#F66EBE", // Pink
+            "techno": "#19D764" // Light green
         };
 
         // Animation control
@@ -500,7 +553,25 @@
                     .attr("height", barSize - 5)
                     .attr("width", 0)
                     .attr("rx", 3)
-                    .attr("fill", d => colorMap[d.name] || "url(#bar-gradient)");
+                    .attr("fill", d => {
+                        // Select gradient based on genre category
+                        if (d.name === "pop" || d.name === "indie-pop" || d.name === "k-pop" || 
+                            d.name === "j-pop" || d.name === "synth-pop" || d.name === "indie" ||
+                            d.name === "r-n-b" || d.name === "edm") {
+                            return "url(#pink-gradient)";
+                        } else if (d.name === "electronic" || d.name === "house" || 
+                                 d.name === "chill" || d.name === "garage" || 
+                                 d.name === "swedish" || d.name === "show-tunes") {
+                            return "url(#yellow-gradient)";
+                        } else if (d.name === "ambient" || d.name === "piano" || 
+                                 d.name === "sad" || d.name === "british") {
+                            return "url(#purple-gradient)";
+                        } else if (colorMap[d.name]) {
+                            return colorMap[d.name];
+                        } else {
+                            return "url(#bar-gradient)"; // Default gradient
+                        }
+                    });
                 
                 // Add genre labels
                 barsEnter.append("text")
