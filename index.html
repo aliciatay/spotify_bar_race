@@ -16,7 +16,9 @@
         }
         .container {
             width: 1008px;
+            height: 599px;
             position: relative;
+            overflow: hidden;
         }
         .bar {
             fill-opacity: 0.9;
@@ -26,7 +28,7 @@
             fill-opacity: 1;
         }
         .year-label {
-            font-size: 72px;
+            font-size: 65px;
             font-weight: 700;
             fill: rgba(255, 255, 255, 0.15);
             text-anchor: end;
@@ -45,7 +47,7 @@
             text-anchor: start;
         }
         .axis-label {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
             fill: #ffffff;
         }
@@ -65,7 +67,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            top: 15px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
@@ -74,11 +76,11 @@
             background-color: #1DB954;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
-            min-width: 80px;
+            min-width: 70px;
         }
         button:hover {
             background-color: #1ed760;
@@ -121,9 +123,9 @@
     </div>
     <script>
         // Set the dimensions and margins of the graph
-        const margin = {top: 80, right: 20, bottom: 50, left: 160};
+        const margin = {top: 60, right: 20, bottom: 50, left: 160};
         const width = 1008 - margin.left - margin.right;
-        const height = 600 - margin.top - margin.bottom;
+        const height = 599 - margin.top - margin.bottom;
         const barSize = 24; // Make bars a bit smaller to fit more
         const n = 20; // Show more genres
         let duration = 750; // Default transition duration (faster than before) - made variable with let
@@ -131,8 +133,8 @@
         // Create SVG container
         const svg = d3.select("#visualization")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("width", 1008)
+            .attr("height", 599 - margin.top) // Adjust height to account for controls at the top
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
             
@@ -185,7 +187,7 @@
             .attr("text-anchor", "middle")
             .attr("transform", "rotate(-90)")
             .attr("x", -height / 2)
-            .attr("y", -margin.left + 50)
+            .attr("y", -margin.left + 40)
             .text("Genre");
 
         // Color scale
